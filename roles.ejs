@@ -1,0 +1,59 @@
+<section class="page-head">
+  <h1>Roles &amp; Permissions</h1>
+  <p class="lead">Decide who can open this dashboard and who counts as ticket staff. The lists below are read live from your Discord server.</p>
+</section>
+
+<div class="stack">
+  <section class="card">
+    <div class="row row-between">
+      <div class="card-head" style="margin:0">
+        <h2>Start from the suggested setup</h2>
+        <p>Matches your roles by name: <%= suggested.admin.join(', ') %> as admins; <%= suggested.staff.join(', ') %> as staff; <%= suggested.specialist.join(', ') %> as specialists; <%= suggested.blocked.join(', ') %> as never staff.</p>
+      </div>
+      <form method="post" action="/roles/defaults" data-confirm="Replace all four role lists with the suggested defaults?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-ghost">Use suggested defaults</button>
+      </form>
+    </div>
+  </section>
+
+  <form method="post" action="/roles" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Full admins</h2>
+        <p>Can open this dashboard and manage every ticket type, the blacklist and all settings. The server owner and anyone with Manage Server always have access.</p>
+      </div>
+      <%- picker({ kind: 'role', name: 'admin', multi: true, selected: roleConfig.admin }) %>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Ticket staff</h2>
+        <p>Can see and manage tickets in Discord. They cannot open the dashboard unless they are also an admin.</p>
+      </div>
+      <%- picker({ kind: 'role', name: 'staff', multi: true, selected: roleConfig.staff }) %>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Specialist roles</h2>
+        <p>Optional. You attach these to individual ticket types, for example Developer on Bug Reports. They only get access to the types you choose.</p>
+      </div>
+      <%- picker({ kind: 'role', name: 'specialist', multi: true, selected: roleConfig.specialist }) %>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Never staff</h2>
+        <p>These roles can never grant admin or staff access, even if added somewhere by mistake. Good for Member, Release Ping and Bots.</p>
+      </div>
+      <%- picker({ kind: 'role', name: 'blocked', multi: true, selected: roleConfig.blocked }) %>
+    </section>
+
+    <div class="row">
+      <button type="submit" class="btn btn-primary">Save roles</button>
+    </div>
+  </form>
+</div>

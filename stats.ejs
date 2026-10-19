@@ -1,0 +1,50 @@
+<section class="page-head">
+  <h1>Ticket statistics</h1>
+  <p class="lead">How busy the team is and how quickly people get help.</p>
+</section>
+<%- include('_tabs') %>
+
+<div class="widgets" style="margin-bottom:20px">
+  <div class="card widget"><strong><%= formatNumber(totals.total) %></strong><span>Tickets in total</span><small><%= formatNumber(totals.open) %> open, <%= formatNumber(totals.closed) %> closed</small></div>
+  <div class="card widget"><strong><%= formatNumber(last30) %></strong><span>Opened in the last 30 days</span></div>
+  <div class="card widget"><strong><%= avgResponse ? formatDuration(avgResponse) : '-' %></strong><span>Average first response</span><small>Time until a staff member first replied</small></div>
+  <div class="card widget"><strong><%= avgResolution ? formatDuration(avgResolution) : '-' %></strong><span>Average time to close</span></div>
+  <div class="card widget"><strong><%= rating.n ? rating.a.toFixed(1) + ' / 5' : '-' %></strong><span>Average rating</span><small><%= rating.n %> rating<%= rating.n === 1 ? '' : 's' %></small></div>
+</div>
+
+<div class="stack">
+  <section class="card">
+    <div class="card-head"><h2>Tickets per day</h2><p>Last 14 days (UTC).</p></div>
+    <div class="day-chart" role="img" aria-label="Tickets opened per day">
+      <% days.forEach((d) => { %>
+        <div class="day-col" title="<%= d.key %>: <%= d.n %>"><i style="height:<%= Math.round(d.n / maxDay * 100) %>%"></i><span><%= d.label %></span></div>
+      <% }) %>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-head"><h2>By ticket type</h2></div>
+      <% if (!byType.length) { %><div class="empty">No tickets yet.</div><% } %>
+      <% byType.forEach((t) => { %>
+        <div class="bar-row"><span><%= t.name %></span><div class="bar-track"><div class="bar-fill" style="width:<%= Math.round(t.n / maxType * 100) %>%"></div></div><span><%= t.n %></span></div>
+      <% }) %>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Per staff member</h2><p>Tickets they claimed and tickets they closed.</p></div>
+      <% if (!staff.length) { %><div class="empty">Nobody has claimed or closed a ticket yet.</div><% } else { %>
+        <div class="table-wrap">
+          <table class="table" style="min-width:0">
+            <thead><tr><th>Staff</th><th>Claimed</th><th>Closed</th><th>Rating</th></tr></thead>
+            <tbody>
+              <% staff.forEach((s) => { %>
+                <tr><td><%= s.name %></td><td><%= s.claimed %></td><td><%= s.closed %></td><td class="muted"><%= s.rating ? s.rating.toFixed(1) : '-' %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</div>

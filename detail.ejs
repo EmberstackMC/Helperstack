@@ -1,0 +1,48 @@
+<section class="page-head">
+  <h1>Ticket #<%= String(ticket.number).padStart(4, '0') %></h1>
+  <p class="lead"><%= ticket.type_name %> - opened by <%= names.opener %></p>
+</section>
+<%- include('_tabs') %>
+
+<div class="stack">
+  <section class="card">
+    <div class="row row-between" style="margin-bottom:16px">
+      <h2>Details</h2>
+      <div class="row">
+        <% if (discordUrl) { %><a class="btn btn-ghost" href="<%= discordUrl %>" target="_blank" rel="noopener noreferrer">Open in Discord</a><% } %>
+        <% if (transcript) { %><a class="btn btn-primary" href="/tickets/transcripts/<%= ticket.id %>/raw?download=1">Download transcript</a><% } %>
+      </div>
+    </div>
+    <dl class="kv">
+      <dt>Status</dt><dd><span class="badge <%= ticket.status === 'open' ? 'badge-ok' : '' %>"><%= ticket.status %></span><% if (ticket.reopened_count) { %> <span class="muted small">(reopened <%= ticket.reopened_count %>x)</span><% } %></dd>
+      <dt>Priority</dt><dd><span class="priority priority-<%= ticket.priority %>"><%= priorities[ticket.priority].label %></span></dd>
+      <dt>Opened</dt><dd><%= new Date(ticket.created_at).toISOString().slice(0, 16).replace('T', ' ') %> UTC</dd>
+      <dt>First staff reply</dt><dd><%= ticket.first_response_at ? formatDuration(ticket.first_response_at - ticket.created_at) + ' after opening' : 'None yet' %></dd>
+      <dt>Claimed by</dt><dd><%= names.claimer || 'Nobody' %></dd>
+      <% if (ticket.closed_at) { %>
+        <dt>Closed</dt><dd><%= new Date(ticket.closed_at).toISOString().slice(0, 16).replace('T', ' ') %> UTC by <%= names.closer || 'unknown' %></dd>
+        <dt>Reason</dt><dd><%= ticket.close_reason || '-' %></dd>
+      <% } %>
+      <% if (ticket.rating) { %>
+        <dt>Rating</dt><dd><%= '\u2605'.repeat(ticket.rating) %><span class="muted"><%= '\u2605'.repeat(5 - ticket.rating) %></span> (<%= ticket.rating %>/5)<%= ticket.rating_comment ? ' - ' + ticket.rating_comment : '' %></dd>
+      <% } %>
+    </dl>
+    <% if (answers.length) { %>
+      <hr class="divider">
+      <h3 style="margin-bottom:10px">Form answers</h3>
+      <dl class="kv">
+        <% answers.forEach((a) => { %><dt><%= a.label %></dt><dd><%= a.value || '-' %></dd><% }) %>
+      </dl>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-bottom:14px">Transcript</h2>
+    <% if (transcript) { %>
+      <p class="muted small" style="margin-bottom:12px"><%= transcript.message_count %> message<%= transcript.message_count === 1 ? '' : 's' %>, saved <%= new Date(transcript.created_at).toISOString().slice(0, 16).replace('T', ' ') %> UTC</p>
+      <iframe class="frame" src="/tickets/transcripts/<%= ticket.id %>/raw" title="Transcript of ticket <%= ticket.number %>" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>
+    <% } else { %>
+      <div class="empty">The transcript is saved when the ticket is closed.</div>
+    <% } %>
+  </section>
+</div>

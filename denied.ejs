@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('_head') %></head>
+<body class="auth-body">
+  <main class="auth-card">
+    <%- include('_flame') %>
+    <h1>No dashboard access</h1>
+    <p><strong><%= username %></strong>, your account is signed in but it is not on the dashboard access list. Ask the server owner to give you an admin role, or the Manage Server permission.</p>
+    <a class="btn btn-ghost btn-block" href="/login">Try a different account</a>
+  </main>
+</body>
+</html>

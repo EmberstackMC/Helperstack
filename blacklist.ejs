@@ -1,0 +1,44 @@
+<section class="page-head">
+  <h1>Ticket blacklist</h1>
+  <p class="lead">People on this list cannot open new tickets. Their existing tickets are not affected.</p>
+</section>
+<%- include('_tabs') %>
+
+<div class="stack">
+  <section class="card">
+    <div class="card-head"><h2>Add someone</h2></div>
+    <form method="post" action="/tickets/blacklist" class="field-row" style="align-items:end">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field"><label class="label" for="userId">Discord user ID</label><input class="input" id="userId" name="userId" inputmode="numeric" placeholder="123456789012345678" required><p class="hint">Turn on Developer Mode in Discord, right-click the person, choose Copy User ID.</p></div>
+      <div class="field"><label class="label" for="reason">Reason (optional)</label><input class="input" id="reason" name="reason" maxlength="200" placeholder="Spamming tickets"></div>
+      <div><button class="btn btn-primary" type="submit">Add to blacklist</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Blocked people</h2></div>
+    <% if (!rows.length) { %><div class="empty">Nobody is blacklisted.</div><% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Person</th><th>Reason</th><th>Added by</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <% rows.forEach((r) => { %>
+              <tr>
+                <td><strong><%= r.user_name || r.user_id %></strong><div class="muted small"><%= r.user_id %></div></td>
+                <td><%= r.reason || '-' %></td>
+                <td class="muted"><%= r.addedByName || '-' %></td>
+                <td class="muted"><%= new Date(r.created_at).toISOString().slice(0, 10) %></td>
+                <td style="text-align:right">
+                  <form method="post" action="/tickets/blacklist/<%= r.user_id %>/delete" data-confirm="Allow this person to open tickets again?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-ghost" type="submit">Remove</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</div>

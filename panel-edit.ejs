@@ -1,0 +1,97 @@
+<section class="page-head">
+  <h1><%= panel.id ? 'Edit panel' : 'New panel' %></h1>
+  <p class="lead">Design the message, choose which ticket types it offers, then post it to a channel.</p>
+</section>
+<%- include('_tabs') %>
+
+<script type="application/json" id="types-data"><%- JSON.stringify(types.map((t) => ({ id: t.id, name: t.name, emoji: t.emoji, buttonLabel: t.button_label, buttonStyle: t.button_style, description: t.description }))).replace(/</g, '\\u003c') %></script>
+
+<form method="post" action="<%= panel.id ? '/tickets/panels/' + panel.id : '/tickets/panels' %>" id="panel-form" class="grid-2">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Where and how</h2></div>
+      <div class="field">
+        <label class="label" for="name">Panel name</label>
+        <input class="input" id="name" name="name" value="<%= panel.name %>" maxlength="60" required placeholder="Main support panel">
+        <p class="hint">Only you see this name. It helps tell panels apart.</p>
+      </div>
+      <div class="field">
+        <span class="label">Channel</span>
+        <%- picker({ kind: 'channel', name: 'channelId', selected: panel.channel_id }) %>
+        <p class="hint">The text channel where the panel message is posted.</p>
+      </div>
+      <div class="field">
+        <label class="label" for="p-style">Style</label>
+        <select class="select" id="p-style" name="style">
+          <option value="button"<%= panel.style === 'button' ? ' selected' : '' %>>Buttons (one per ticket type)</option>
+          <option value="select"<%= panel.style === 'select' ? ' selected' : '' %>>Dropdown menu</option>
+        </select>
+      </div>
+      <div class="field" id="placeholder-field">
+        <label class="label" for="p-placeholder">Dropdown placeholder</label>
+        <input class="input" id="p-placeholder" name="selectPlaceholder" value="<%= panel.select_placeholder %>" maxlength="150">
+      </div>
+      <div class="field">
+        <span class="label">Ticket types on this panel</span>
+        <% if (types.length === 0) { %>
+          <p class="hint">No ticket types yet. <a href="/tickets/types/new">Create one</a> first.</p>
+        <% } else { %>
+          <div class="check-list">
+            <% types.forEach((t) => { %>
+              <label><input type="checkbox" name="typeIds" value="<%= t.id %>"<%= panel.typeIds.includes(t.id) ? ' checked' : '' %>> <span><%= t.emoji %> <%= t.name %></span></label>
+            <% }) %>
+          </div>
+          <p class="hint">Button label, emoji and color are set on each ticket type.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Embed</h2></div>
+      <div class="field">
+        <label class="label" for="p-title">Title</label>
+        <input class="input" id="p-title" name="embedTitle" value="<%= panel.embed_title %>" maxlength="256">
+      </div>
+      <div class="field">
+        <label class="label" for="p-description">Description</label>
+        <textarea class="textarea" id="p-description" name="embedDescription" maxlength="4000"><%= panel.embed_description %></textarea>
+      </div>
+      <div class="field">
+        <span class="label">Color</span>
+        <div class="row">
+          <input class="input" type="color" id="p-color" name="embedColor" value="<%= panel.embed_color || defaultColor %>" style="max-width:90px">
+          <label class="hint"><input type="checkbox" id="p-color-default" name="embedColorDefault"<%= panel.embed_color ? '' : ' checked' %>> Use the default embed color from Bot Settings</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="label" for="p-image">Image link</label><input class="input" id="p-image" name="embedImage" type="url" value="<%= panel.embed_image %>" maxlength="500" placeholder="https://..."></div>
+        <div class="field"><label class="label" for="p-thumb">Thumbnail link</label><input class="input" id="p-thumb" name="embedThumbnail" type="url" value="<%= panel.embed_thumbnail %>" maxlength="500" placeholder="https://..."></div>
+      </div>
+      <div class="field">
+        <label class="label" for="p-footer">Footer</label>
+        <input class="input" id="p-footer" name="embedFooter" value="<%= panel.embed_footer %>" maxlength="2048" placeholder="Leave empty to use the global footer">
+      </div>
+    </section>
+  </div>
+
+  <div class="stack" style="position:sticky;top:16px">
+    <section class="card">
+      <div class="card-head"><h2>Preview</h2><p>Roughly how it will look in Discord.</p></div>
+      <div class="embed-preview">
+        <div class="embed" id="pv-embed">
+          <img class="embed-thumb" id="pv-thumb" alt="" hidden>
+          <div class="embed-title" id="pv-title"></div>
+          <div class="embed-text" id="pv-desc"></div>
+          <img class="embed-image" id="pv-image" alt="" hidden>
+          <div class="embed-footer" id="pv-footer"></div>
+        </div>
+        <div class="dc-btns" id="pv-buttons"></div>
+      </div>
+    </section>
+    <div class="row sticky-actions">
+      <button class="btn btn-primary" type="submit" name="action" value="send">Save and send to Discord</button>
+      <button class="btn btn-ghost" type="submit" name="action" value="save">Save only</button>
+    </div>
+  </div>
+</form>

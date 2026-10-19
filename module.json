@@ -1,0 +1,10 @@
+{
+  "label": "Tickets",
+  "description": "Panels, ticket types, forms, transcripts, ratings, statistics and a blacklist.",
+  "icon": "ticket",
+  "order": 30,
+  "mount": "/tickets",
+  "nav": [
+    { "label": "Tickets", "path": "/tickets", "icon": "ticket", "order": 30 }
+  ]
+}

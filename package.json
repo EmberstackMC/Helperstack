@@ -1,0 +1,30 @@
+{
+  "name": "emberstack-bot",
+  "version": "1.0.0",
+  "description": "Emberstack Discord bot with a web dashboard",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch --watch-path=src --watch-path=modules src/index.js",
+    "new-module": "node scripts/new-module.js",
+    "backup": "node scripts/backup.js",
+    "restore": "node scripts/restore.js",
+    "gen-secret": "node -e \"console.log(require('crypto').randomBytes(48).toString('hex'))\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "discord.js": "^14.27.0",
+    "dotenv": "^18.0.8",
+    "ejs": "^3.1.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.4.0",
+    "winston": "^3.19.0"
+  }
+}

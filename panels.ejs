@@ -1,0 +1,34 @@
+<section class="page-head">
+  <h1>Ticket panels</h1>
+  <p class="lead">A panel is the message with buttons or a dropdown that people use to open tickets. Make as many as you like, each in its own channel.</p>
+</section>
+<%- include('_tabs') %>
+
+<div class="row" style="margin-bottom:18px">
+  <% if (hasTypes) { %><a class="btn btn-primary" href="/tickets/panels/new">New panel</a>
+  <% } else { %><span class="muted">Create a <a href="/tickets/types/new">ticket type</a> first, then come back to build a panel.</span><% } %>
+</div>
+
+<% if (panels.length === 0) { %>
+  <div class="card empty">No panels yet.</div>
+<% } else { %>
+  <div class="grid-2">
+    <% panels.forEach((p) => { %>
+      <section class="card">
+        <div class="row row-between"><h3><%= p.name %></h3><span class="badge"><%= p.style === 'select' ? 'Dropdown' : 'Buttons' %></span></div>
+        <p class="muted small" style="margin:8px 0 14px">
+          <%= p.channelName ? 'Posts in ' + p.channelName : 'No channel chosen yet' %> -
+          <%= p.message_id ? 'live in Discord' : 'not posted yet' %><br>
+          Types: <%= p.typeNames.length ? p.typeNames.join(', ') : 'none selected' %>
+        </p>
+        <div class="row">
+          <a class="btn btn-primary" href="/tickets/panels/<%= p.id %>">Edit</a>
+          <form method="post" action="/tickets/panels/<%= p.id %>/delete" data-confirm="Delete this panel and remove its message from Discord?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </section>
+    <% }) %>
+  </div>
+<% } %>

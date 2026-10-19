@@ -1,0 +1,95 @@
+<section class="page-head">
+  <h1><%= type.id ? 'Edit ticket type' : 'New ticket type' %></h1>
+  <p class="lead">Everything about one kind of ticket: where it goes, who sees it, what it says and what it asks first.</p>
+</section>
+<%- include('_tabs') %>
+
+<form method="post" action="<%= type.id ? '/tickets/types/' + type.id : '/tickets/types' %>" id="type-form" class="grid-2">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Basics</h2></div>
+      <div class="field-row">
+        <div class="field"><label class="label" for="name">Name</label><input class="input" id="name" name="name" value="<%= type.name %>" maxlength="50" required placeholder="Support"></div>
+        <div class="field"><label class="label" for="emoji">Emoji</label><input class="input" id="emoji" name="emoji" value="<%= type.emoji %>" maxlength="64" placeholder="🎫 or &lt;:name:123456789012345678&gt;"></div>
+      </div>
+      <div class="field"><label class="label" for="description">Description</label><input class="input" id="description" name="description" value="<%= type.description %>" maxlength="100" placeholder="Shown in the dropdown menu"></div>
+      <div class="field-row">
+        <div class="field"><label class="label" for="buttonLabel">Button label</label><input class="input" id="buttonLabel" name="buttonLabel" value="<%= type.button_label %>" maxlength="80" placeholder="Same as the name if empty"></div>
+        <div class="field">
+          <label class="label" for="buttonStyle">Button color</label>
+          <select class="select" id="buttonStyle" name="buttonStyle">
+            <% [['primary', 'Blue'], ['secondary', 'Grey'], ['success', 'Green'], ['danger', 'Red']].forEach(([val, name]) => { %><option value="<%= val %>"<%= type.button_style === val ? ' selected' : '' %>><%= name %></option><% }) %>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Channel and staff</h2></div>
+      <div class="field">
+        <span class="label">Discord category for new tickets</span>
+        <%- picker({ kind: 'category', name: 'categoryId', selected: type.category_id }) %>
+        <p class="hint">Ticket channels are created inside this category.</p>
+      </div>
+      <div class="field">
+        <label class="label" for="namingPattern">Channel name pattern</label>
+        <input class="input" id="namingPattern" name="namingPattern" value="<%= type.naming_pattern %>" maxlength="100">
+        <p class="hint">Variables: <code>{number}</code> <code>{username}</code> <code>{type}</code> <code>{userid}</code>. Example: <code>{username}-{type}</code>. Names are made Discord-safe automatically.</p>
+      </div>
+      <div class="field">
+        <span class="label">Staff roles for this type</span>
+        <%- picker({ kind: 'role', name: 'staffRoleIds', multi: true, selected: type.staffRoleIds }) %>
+        <p class="hint">These roles can see and manage tickets of this type. Pick specialists here, like Developer for Bug Reports.</p>
+      </div>
+      <div class="switch-row">
+        <input class="toggle" type="checkbox" id="inheritStaff" name="inheritStaff"<%= type.inheritStaff ? ' checked' : '' %>>
+        <label class="field-text" for="inheritStaff"><span class="label">Also allow the global ticket staff</span><span class="hint">Turn off to keep this type private to the roles above plus full admins (good for Reports).</span></label>
+      </div>
+      <div class="field-row" style="margin-top:18px">
+        <div class="field"><label class="label" for="maxOpenPerUser">Max open tickets per person</label><input class="input" type="number" min="0" max="50" id="maxOpenPerUser" name="maxOpenPerUser" value="<%= type.max_open_per_user %>"><p class="hint">0 uses the global limit from Settings.</p></div>
+        <div class="field">
+          <span class="label">Close with reason</span>
+          <label class="hint"><input type="checkbox" name="closeWithReason"<%= type.closeWithReason ? ' checked' : '' %>> Show the "Close with reason" button</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Welcome message</h2><p>Posted at the top of every new ticket. Variables: <code>{user}</code> <code>{username}</code> <code>{ticket-type}</code> <code>{ticket-number}</code> <code>{staff-role}</code> <code>{server}</code></p></div>
+      <div class="field"><label class="label" for="welcomeTitle">Title</label><input class="input" id="welcomeTitle" name="welcomeTitle" value="<%= type.welcome_title %>" maxlength="256"></div>
+      <div class="field"><label class="label" for="welcomeDescription">Message</label><textarea class="textarea" id="welcomeDescription" name="welcomeDescription" maxlength="4000" rows="5"><%= type.welcome_description %></textarea></div>
+      <div class="field">
+        <span class="label">Color</span>
+        <div class="row">
+          <input class="input" type="color" id="welcomeColor" name="welcomeColor" value="<%= type.welcome_color || defaultColor %>" style="max-width:90px">
+          <label class="hint"><input type="checkbox" id="welcomeColorDefault" name="welcomeColorDefault"<%= type.welcome_color ? '' : ' checked' %>> Use the default embed color</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Form before the ticket opens</h2><p>Optional questions shown in a pop-up. The answers appear in the welcome message. Discord allows up to 5 questions, and each label can be 45 characters at most.</p></div>
+      <input type="hidden" name="questions" id="questions-json" value="[]">
+      <div id="question-builder" data-initial="<%= JSON.stringify(type.formQuestions) %>"></div>
+    </section>
+  </div>
+
+  <div class="stack" style="position:sticky;top:16px">
+    <section class="card">
+      <div class="card-head"><h2>Welcome preview</h2></div>
+      <div class="embed-preview">
+        <div class="embed" id="wv-embed">
+          <div class="embed-title" id="wv-title"></div>
+          <div class="embed-text" id="wv-desc"></div>
+          <div id="wv-fields" class="embed-text"></div>
+        </div>
+        <div class="dc-btns"><span class="dc-btn danger">Close</span><span class="dc-btn secondary" id="wv-reason-btn">Close with reason</span><span class="dc-btn success">Claim</span></div>
+      </div>
+    </section>
+    <div class="row sticky-actions">
+      <button class="btn btn-primary" type="submit">Save ticket type</button>
+      <% if (type.id) { %><button class="btn btn-danger" type="submit" formaction="/tickets/types/<%= type.id %>/delete" formnovalidate data-confirm="Delete this ticket type? Existing tickets keep working.">Delete</button><% } %>
+    </div>
+  </div>
+</form>

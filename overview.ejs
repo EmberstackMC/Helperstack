@@ -1,0 +1,62 @@
+<section class="page-head">
+  <h1>Welcome back, <%= user.globalName || user.username %></h1>
+  <p class="lead">
+    <% if (connected) { %>
+      You are managing <strong><%= guildName %></strong>. Changes you save here apply to the bot straight away, with no restart.
+    <% } else { %>
+      The bot is not in your server yet. Invite it with the link in SETUP.md, then reload this page.
+    <% } %>
+  </p>
+</section>
+
+<% if (needsStaffRoles) { %>
+  <div class="callout" style="margin-bottom:20px">
+    <div>
+      <strong>Choose your ticket staff roles</strong>
+      <p class="muted small">No staff roles are set yet, so only admins can manage tickets.</p>
+    </div>
+    <a class="btn btn-primary" href="/roles">Open Roles &amp; Permissions</a>
+  </div>
+<% } %>
+
+<% if (widgets.length) { %>
+  <div class="widgets" style="margin-bottom:20px">
+    <% widgets.forEach((w) => { %>
+      <div class="card widget">
+        <strong><%= w.value %></strong>
+        <span><%= w.label %></span>
+        <% if (w.hint) { %><small><%= w.hint %></small><% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head"><h2>Bot status</h2></div>
+    <dl class="status-list">
+      <div><dt>Connection</dt><dd><% if (connected) { %><span class="badge badge-ok">Online</span><% } else { %><span class="badge badge-bad">Not in server</span><% } %></dd></div>
+      <div><dt>Logged in as</dt><dd><%= botTag %></dd></div>
+      <div><dt>Latency</dt><dd><%= latency >= 0 ? latency + ' ms' : 'Measuring...' %></dd></div>
+      <div><dt>Uptime</dt><dd><%= formatDuration(uptimeMs) %></dd></div>
+      <div><dt>Members</dt><dd><%= formatNumber(memberCount) %></dd></div>
+    </dl>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Modules</h2>
+      <p>Each feature is its own module. New ones appear here and in the sidebar automatically.</p>
+    </div>
+    <% modules.forEach((m) => { %>
+      <div class="module-item">
+        <div>
+          <strong><%= m.label %></strong>
+          <% if (m.description) { %><p><%= m.description %></p><% } %>
+          <% if (m.error) { %><p style="color:var(--danger)"><%= m.error %></p><% } %>
+        </div>
+        <span class="badge <%= m.status === 'active' ? 'badge-ok' : 'badge-bad' %>"><%= m.status === 'active' ? 'Active' : 'Failed' %></span>
+      </div>
+    <% }) %>
+  </section>
+</div>

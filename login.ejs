@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head><%- include('_head') %></head>
+<body class="auth-body">
+  <main class="auth-card">
+    <div class="auth-glow" aria-hidden="true"></div>
+    <%- include('_flame') %>
+    <h1>Emberstack</h1>
+    <p>Sign in with the Discord account you use in the Emberstack server. Only admins can open the dashboard.</p>
+    <% flash.forEach((f) => { %><div class="flash flash-<%= f.type %>" role="status"><span><%= f.msg %></span></div><% }) %>
+    <a class="btn btn-primary btn-block btn-lg" href="/auth/login?next=<%= encodeURIComponent(next) %>">Continue with Discord</a>
+  </main>
+</body>
+</html>

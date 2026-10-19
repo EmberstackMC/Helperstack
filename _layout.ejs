@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('_head') %>
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <% styles.forEach((href) => { %><link rel="stylesheet" href="<%= href %>?v=<%= assetVersion %>"><% }) %>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="brand" href="/">
+      <%- include('_flame') %>
+      <span class="brand-name">Emberstack</span>
+    </a>
+
+    <% if (guild) { %>
+      <div class="guild-chip" title="The server this dashboard manages">
+        <% if (guild.icon) { %><img src="<%= guild.icon %>" alt="" width="28" height="28"><% } else { %><span class="guild-fallback"><%= guild.name.slice(0, 1) %></span><% } %>
+        <span><%= guild.name %></span>
+      </div>
+    <% } %>
+
+    <nav class="nav">
+      <% navSections.forEach((section) => { %>
+        <% if (navSections.length > 1) { %><p class="nav-section"><%= section.name %></p><% } %>
+        <% section.items.forEach((item) => {
+             const active = item.path === '/' ? activePath === '/' : (activePath === item.path || activePath.startsWith(item.path + '/')); %>
+          <a class="nav-link<%= active ? ' is-active' : '' %>" href="<%= item.path %>"<% if (active) { %> aria-current="page"<% } %>>
+            <%- icon(item.icon) %><span><%= item.label %></span>
+          </a>
+        <% }) %>
+      <% }) %>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <img src="<%= user.avatarUrl %>" alt="" width="34" height="34">
+        <div>
+          <strong><%= user.globalName || user.username %></strong>
+          <small>@<%= user.username %></small>
+        </div>
+      </div>
+      <form method="post" action="/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-ghost btn-block" type="submit"><%- icon('logout', 16) %>Sign out</button>
+      </form>
+    </div>
+  </aside>
+  <div class="scrim" data-sidebar-toggle></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-sidebar-toggle aria-label="Open menu" aria-controls="sidebar"><%- icon('menu', 22) %></button>
+      <span class="topbar-title"><%= title %></span>
+    </header>
+
+    <div class="content">
+      <% flash.forEach((f) => { %>
+        <div class="flash flash-<%= f.type %>" role="status">
+          <span><%= f.msg %></span>
+          <button type="button" class="flash-x" data-dismiss aria-label="Dismiss">&times;</button>
+        </div>
+      <% }) %>
+      <%- body %>
+    </div>
+  </main>
+</div>
+
+<script type="application/json" id="ember-data"><%- emberData %></script>
+<script src="/static/js/app.js?v=<%= assetVersion %>" defer></script>
+<% scripts.forEach((src) => { %><script src="<%= src %>?v=<%= assetVersion %>" defer></script><% }) %>
+</body>
+</html>

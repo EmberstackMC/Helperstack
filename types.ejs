@@ -1,0 +1,29 @@
+<section class="page-head">
+  <h1>Ticket types</h1>
+  <p class="lead">Each type has its own category, staff, welcome message and optional form. Add types to a panel so people can pick them.</p>
+</section>
+<%- include('_tabs') %>
+
+<div class="row" style="margin-bottom:18px"><a class="btn btn-primary" href="/tickets/types/new">New ticket type</a></div>
+
+<% if (types.length === 0) { %>
+  <div class="card empty">No ticket types yet. Try a first one called "Support".</div>
+<% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Type</th><th>Category</th><th>Extra staff roles</th><th>Form</th><th>Open now</th><th></th></tr></thead>
+      <tbody>
+        <% types.forEach((t) => { %>
+          <tr>
+            <td><strong><%= t.emoji %> <%= t.name %></strong><div class="muted small"><%= t.description %></div></td>
+            <td class="muted"><%= t.categoryName || 'None (top of the list)' %></td>
+            <td class="muted"><%= t.staffRoleIds.length %><%= t.inheritStaff ? ' + global staff' : ' only' %></td>
+            <td class="muted"><%= t.formQuestions.length ? t.formQuestions.length + ' question' + (t.formQuestions.length === 1 ? '' : 's') : 'No form' %></td>
+            <td><%= t.openCount %></td>
+            <td style="text-align:right"><a class="btn btn-ghost" href="/tickets/types/<%= t.id %>">Edit</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

@@ -1,0 +1,5 @@
+<nav class="tabs" aria-label="Ticket sections">
+  <% [['/tickets', 'Tickets', 'list'], ['/tickets/panels', 'Panels', 'panels'], ['/tickets/types', 'Ticket types', 'types'], ['/tickets/settings', 'Settings', 'settings'], ['/tickets/stats', 'Statistics', 'stats'], ['/tickets/blacklist', 'Blacklist', 'blacklist']].forEach(([href, label, key]) => { %>
+    <a class="tab<%= tab === key ? ' is-active' : '' %>" href="<%= href %>"<% if (tab === key) { %> aria-current="page"<% } %>><%= label %></a>
+  <% }) %>
+</nav>

@@ -1,0 +1,6 @@
+.identity-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); align-items: start; }
+.identity-media { position: relative; padding-bottom: 48px; }
+.banner-img { width: 100%; height: 110px; object-fit: cover; border-radius: var(--radius); display: block; background: var(--bg-input); }
+.banner-empty { display: grid; place-items: center; color: var(--faint); font-size: 0.88rem; border: 1px dashed var(--line-strong); }
+.avatar-img { position: absolute; left: 16px; bottom: 0; width: 96px; height: 96px; border-radius: 50%; border: 5px solid var(--bg-card); background: var(--bg-card); object-fit: cover; }
+@media (max-width: 760px) { .identity-grid { grid-template-columns: minmax(0, 1fr); } }

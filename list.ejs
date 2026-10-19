@@ -1,0 +1,64 @@
+<section class="page-head">
+  <h1>Tickets</h1>
+  <p class="lead">Every ticket, open or closed. Search by number, person or type, and open a ticket to read its transcript.</p>
+</section>
+<%- include('_tabs') %>
+
+<form method="get" action="/tickets" class="toolbar">
+  <div class="field grow">
+    <label class="label" for="q">Search</label>
+    <input class="input" id="q" name="q" value="<%= q %>" placeholder="Ticket number, username, user ID or type">
+  </div>
+  <div class="field">
+    <label class="label" for="status">Status</label>
+    <select class="select" id="status" name="status">
+      <option value="open"<%= status === 'open' ? ' selected' : '' %>>Open</option>
+      <option value="closed"<%= status === 'closed' ? ' selected' : '' %>>Closed</option>
+      <option value="all"<%= status === 'all' ? ' selected' : '' %>>All</option>
+    </select>
+  </div>
+  <div class="field">
+    <label class="label" for="type">Type</label>
+    <select class="select" id="type" name="type">
+      <option value="">Any type</option>
+      <% types.forEach((t) => { %><option value="<%= t.id %>"<%= String(typeId) === String(t.id) ? ' selected' : '' %>><%= t.name %></option><% }) %>
+    </select>
+  </div>
+  <div class="field">
+    <label class="label" for="priority">Priority</label>
+    <select class="select" id="priority" name="priority">
+      <option value="">Any</option>
+      <% Object.entries(priorities).forEach(([key, p]) => { %><option value="<%= key %>"<%= priority === key ? ' selected' : '' %>><%= p.label %></option><% }) %>
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Filter</button>
+</form>
+
+<% if (rows.length === 0) { %>
+  <div class="card empty">No tickets match. <% if (types.length === 0) { %>Start by creating a <a href="/tickets/types/new">ticket type</a>, then a <a href="/tickets/panels/new">panel</a>.<% } %></div>
+<% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>#</th><th>Type</th><th>Opened by</th><th>Status</th><th>Priority</th><th>Claimed by</th><th>Opened</th><th></th></tr></thead>
+      <tbody>
+        <% rows.forEach((t) => { %>
+          <tr>
+            <td><strong>#<%= String(t.number).padStart(4, '0') %></strong></td>
+            <td><%= t.type_name %></td>
+            <td><%= t.user_name || t.user_id %></td>
+            <td><span class="badge <%= t.status === 'open' ? 'badge-ok' : '' %>"><%= t.status === 'deleted' ? 'Deleted' : (t.status === 'open' ? 'Open' : 'Closed') %></span></td>
+            <td><span class="priority priority-<%= t.priority %>"><%= priorities[t.priority].label %></span></td>
+            <td class="muted"><%= t.claimedName || '-' %></td>
+            <td class="muted"><%= new Date(t.created_at).toISOString().slice(0, 16).replace('T', ' ') %></td>
+            <td style="text-align:right"><a class="btn btn-ghost" href="/tickets/view/<%= t.id %>">View</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <div class="pager">
+    <span><%= total %> ticket<%= total === 1 ? '' : 's' %> - page <%= pageNo %> of <%= pages %></span>
+    <% if (prevLink) { %><a class="btn btn-ghost" href="<%= prevLink %>">Previous</a><% } %>
+    <% if (nextLink) { %><a class="btn btn-ghost" href="<%= nextLink %>">Next</a><% } %>
+  </div>
+<% } %>

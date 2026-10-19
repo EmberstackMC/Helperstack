@@ -1,0 +1,145 @@
+<section class="page-head">
+  <h1>Bot Settings</h1>
+  <p class="lead">How the bot looks and behaves in Discord. Everything here applies live, with no restart.</p>
+</section>
+
+<div class="stack">
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Identity</h2>
+      <p>The name, About Me text, avatar and banner people see on the bot's profile. These are the same everywhere the bot is.</p>
+    </div>
+    <form id="identity-form" method="post" action="/bot/identity" enctype="multipart/form-data">
+      <div class="identity-grid">
+        <div class="identity-media">
+          <% if (profile.bannerUrl) { %><img class="banner-img" src="<%= profile.bannerUrl %>" alt="Current banner"><% } else { %><div class="banner-img banner-empty">No banner yet</div><% } %>
+          <img class="avatar-img" src="<%= profile.avatarUrl %>" alt="Current avatar" width="96" height="96">
+        </div>
+        <div>
+          <div class="field">
+            <label class="label" for="username">Username</label>
+            <input class="input" id="username" name="username" value="<%= profile.username %>" minlength="2" maxlength="32" required>
+            <p class="hint">Discord only allows about two username changes per hour.</p>
+          </div>
+          <div class="field">
+            <label class="label" for="description">About Me</label>
+            <textarea class="textarea" id="description" name="description" maxlength="400" rows="3"><%= profile.description %></textarea>
+            <p class="hint">Up to 400 characters. Shown on the bot's profile.</p>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="label" for="avatar">New avatar</label>
+              <input class="input" type="file" id="avatar" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp">
+              <label class="hint"><input type="checkbox" name="removeAvatar"> Reset to the default avatar</label>
+            </div>
+            <div class="field">
+              <label class="label" for="banner">New banner</label>
+              <input class="input" type="file" id="banner" name="banner" accept="image/png,image/jpeg,image/gif,image/webp">
+              <label class="hint"><input type="checkbox" name="removeBanner"> Remove the banner</label>
+            </div>
+          </div>
+          <p class="hint" style="margin-top:10px">Images up to 8 MB. A square avatar (at least 128 px) and a wide banner (about 680 x 240) look best.</p>
+        </div>
+      </div>
+      <div class="row" style="margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="identity-save">Save identity</button>
+        <span class="muted small" id="identity-status" role="status"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Status and activity</h2>
+      <p>The colored dot and the "Playing / Watching ..." line under the bot's name.</p>
+    </div>
+    <form method="post" action="/bot/presence">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field-row">
+        <div class="field">
+          <label class="label" for="status">Status</label>
+          <select class="select" id="status" name="status">
+            <% [['online','Online'],['idle','Idle'],['dnd','Do not disturb'],['invisible','Invisible']].forEach(([val, name]) => { %>
+              <option value="<%= val %>"<%= presence.status === val ? ' selected' : '' %>><%= name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label" for="activityType">Activity</label>
+          <select class="select" id="activityType" name="activityType">
+            <option value="none"<%= presence.activityType === 'none' ? ' selected' : '' %>>No activity</option>
+            <% [['playing','Playing'],['watching','Watching'],['listening','Listening to'],['competing','Competing in'],['custom','Custom text']].forEach(([val, name]) => { %>
+              <option value="<%= val %>"<%= presence.activityType === val ? ' selected' : '' %>><%= name %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="activityText">Activity text</label>
+        <input class="input" id="activityText" name="activityText" maxlength="128" value="<%= presence.activityText %>" placeholder="for new tickets">
+        <p class="hint">Example: choose "Watching" and type "for new tickets" to show "Watching for new tickets".</p>
+      </div>
+      <div class="row" style="margin-top:20px"><button type="submit" class="btn btn-primary">Save status</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Embed style</h2>
+      <p>Applied to every embed the bot sends: ticket messages, logs and commands. The preview updates as you type.</p>
+    </div>
+    <form method="post" action="/bot/embed" id="embed-form" class="grid-2">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div>
+        <div class="field">
+          <label class="label" for="embedColor">Default color</label>
+          <div class="row">
+            <input class="input" type="color" id="embedColor" name="embedColor" value="<%= embed.color %>" style="max-width:90px" data-default="<%= embed.defaultColor %>">
+            <button type="button" class="btn btn-ghost" id="reset-color">Use Ember orange</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="footerText">Footer text</label>
+          <input class="input" id="footerText" name="footerText" maxlength="200" value="<%= embed.footerText %>" placeholder="Emberstack">
+        </div>
+        <div class="field">
+          <label class="label" for="footerIcon">Footer icon link</label>
+          <input class="input" id="footerIcon" name="footerIcon" type="url" maxlength="500" value="<%= embed.footerIcon %>" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label class="label" for="thumbnailUrl">Thumbnail link (optional)</label>
+          <input class="input" id="thumbnailUrl" name="thumbnailUrl" type="url" maxlength="500" value="<%= embed.thumbnailUrl %>" placeholder="https://...">
+          <p class="hint">A small image in the corner of some embeds. Leave empty for none.</p>
+        </div>
+        <div class="row" style="margin-top:20px"><button type="submit" class="btn btn-primary">Save embed style</button></div>
+      </div>
+      <div>
+        <p class="label" style="margin-bottom:8px">Preview</p>
+        <div class="embed-preview" aria-label="Embed preview">
+          <div class="embed" id="pv-embed">
+            <img class="embed-thumb" id="pv-thumb" alt="" hidden>
+            <div class="embed-title">Ticket #0042 opened</div>
+            <div class="embed-text">Hi <strong>@Ember Fan</strong>, a member of the team will be with you shortly. Tell us what you need.</div>
+            <div class="embed-footer" id="pv-footer"><img id="pv-footer-icon" alt="" hidden><span id="pv-footer-text"></span></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Nickname in this server</h2>
+      <p>Show a different name just in Emberstack, without changing the bot's global username. Needs the Change Nickname permission.</p>
+    </div>
+    <form method="post" action="/bot/nickname" class="row" style="align-items:end">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field" style="flex:1;min-width:220px">
+        <label class="label" for="nickname">Server nickname</label>
+        <input class="input" id="nickname" name="nickname" maxlength="32" value="<%= nickname %>" placeholder="Leave empty to use the username">
+      </div>
+      <button type="submit" class="btn btn-primary">Save nickname</button>
+    </form>
+  </section>
+</div>

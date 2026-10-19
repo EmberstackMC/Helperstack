@@ -1,0 +1,65 @@
+<section class="page-head">
+  <h1>Ticket settings</h1>
+  <p class="lead">Logging, limits, transcripts, ratings and automatic closing for all tickets.</p>
+</section>
+<%- include('_tabs') %>
+
+<div class="stack">
+  <section class="card">
+    <div class="row row-between">
+      <div class="card-head" style="margin:0">
+        <h2>Who handles tickets</h2>
+        <p>Set on the <a href="/roles">Roles &amp; Permissions</a> page, in one place for the whole bot.</p>
+      </div>
+      <a class="btn btn-ghost" href="/roles">Change roles</a>
+    </div>
+    <dl class="kv" style="margin-top:16px">
+      <dt>Full admins</dt><dd><%= roleSummary.admin.join(', ') || 'None set (owner and Manage Server always work)' %></dd>
+      <dt>Ticket staff</dt><dd><%= roleSummary.staff.join(', ') || 'None set' %></dd>
+      <dt>Specialist roles</dt><dd><%= roleSummary.specialist.join(', ') || 'None set' %></dd>
+    </dl>
+  </section>
+
+  <form method="post" action="/tickets/settings" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <section class="card">
+      <div class="card-head"><h2>Logging</h2></div>
+      <div class="field">
+        <span class="label">Log channel</span>
+        <%- picker({ kind: 'channel', name: 'logChannelId', selected: s.logChannelId }) %>
+        <p class="hint">Opened, claimed, closed, reopened, deleted and rated events are posted here, with the transcript file on close. Keep this channel staff-only.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Transcripts and feedback</h2></div>
+      <div class="switch-row">
+        <input class="toggle" type="checkbox" id="dmTranscript" name="dmTranscript"<%= s.dmTranscript ? ' checked' : '' %>>
+        <label class="field-text" for="dmTranscript"><span class="label">Send the transcript to the person who opened the ticket</span><span class="hint">As a direct message. Skipped quietly if their DMs are closed.</span></label>
+      </div>
+      <div class="switch-row" style="margin-top:18px">
+        <input class="toggle" type="checkbox" id="ratingEnabled" name="ratingEnabled"<%= s.ratingEnabled ? ' checked' : '' %>>
+        <label class="field-text" for="ratingEnabled"><span class="label">Ask for a rating after closing</span><span class="hint">Five stars plus an optional comment, sent by DM.</span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Limits and closing</h2></div>
+      <div class="switch-row">
+        <input class="toggle" type="checkbox" id="allowUserClose" name="allowUserClose"<%= s.allowUserClose ? ' checked' : '' %>>
+        <label class="field-text" for="allowUserClose"><span class="label">Let people close their own tickets</span><span class="hint">Staff can always close tickets.</span></label>
+      </div>
+      <div class="field-row" style="margin-top:18px">
+        <div class="field"><label class="label" for="maxOpenGlobal">Max open tickets per person</label><input class="input" type="number" id="maxOpenGlobal" name="maxOpenGlobal" min="0" max="50" value="<%= s.maxOpenGlobal %>"><p class="hint">0 means no limit. Each type can set a stricter limit.</p></div>
+        <div class="field"><label class="label" for="deleteDelaySeconds">Delay before deleting a closed ticket (seconds)</label><input class="input" type="number" id="deleteDelaySeconds" name="deleteDelaySeconds" min="0" max="60" value="<%= s.deleteDelaySeconds %>"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="label" for="autoCloseHours">Auto-close after (hours without a message)</label><input class="input" type="number" id="autoCloseHours" name="autoCloseHours" min="0" max="720" value="<%= s.autoCloseHours %>"><p class="hint">0 turns automatic closing off.</p></div>
+        <div class="field"><label class="label" for="autoCloseWarnHours">Warn this many hours before closing</label><input class="input" type="number" id="autoCloseWarnHours" name="autoCloseWarnHours" min="0" max="72" value="<%= s.autoCloseWarnHours %>"><p class="hint">A warning is posted in the ticket. Any new message resets the timer.</p></div>
+      </div>
+    </section>
+
+    <div class="row"><button class="btn btn-primary" type="submit">Save settings</button></div>
+  </form>
+</div>
